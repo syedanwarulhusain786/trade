@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Page</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5" style="margin-left: 50px;">
+        <h1 class="mb-4">Date Selector and File Upload</h1>
+
+        
+
+        <!-- File Selector -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Date Pickers -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="datePicker1">Start:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" >
+            </div>
+            <div class="col-md-6">
+                <label for="datePicker2">End:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date">
+            </div>
+            <div class="col-md-6">
+                <label for="datePicker2">Forward:</label>
+                <input type="date" class="form-control" id="forward" name="forward">
+            </div>
+        </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="fileInput">Forward Files:</label>
+                    <input type="file" class="form-control-file" id="fileforward" name="fileforward" accept=".xml">
+                </div>
+                <div class="col-md-6">
+                    <label for="fileInput">Backward Files:</label>
+                    <input type="file" class="form-control-file" id="filebackward" name="filebackward" accept=".xml">
+                </div>
+            </div>
+                     <!-- Submit Button -->
+         <div class="row">
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Clear</button>
+            </div>
+        </div>
+        </form>    
+
+        
+
+        <!-- Submit Button -->
+        <div class="row">
+            
+        </div>
+
+        <!-- Table Container -->
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Data Table</h2>
+                
+                <table class="table table-bordered table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">Optimisation Name</th>
+                            <th scope="col">Back Pass</th>
+                            <th scope="col">Back Result</th>
+                            <th scope="col">Back Profit</th>
+                            <th scope="col">Back Recovery Factor</th>
+                            <th scope="col">Back Equity DD%</th>
+                            <th scope="col">Back Trades</th>
+                            <th scope="col">Forward Result</th>
+                            <th scope="col">Forward Profit</th>
+                            <th scope="col">Forward Recovery Factor</th>
+                            <th scope="col">Forward Equity DD%</th>
+                            <th scope="col">Forward Trades</th>
+                            <th scope="col">Profit Match %</th>
+                            <th scope="col">Total Original Profit</th>
+                            <th scope="col">Max Original DD</th>
+                            <th scope="col">Lot Multiplier</th>
+                            <th scope="col">Est.Max DD</th>
+
+
+
+
+
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!-- Table content goes here -->
+                        {% for data in datas %}
+                        <tr>
+                            <td>{{filename}}</td>
+                            <td>{{data.back_pass}}</td>
+                            <td>{{data.back_Result}}</td>
+                            <td>{{data.back_Profit}}</td>
+                            <td>{{data.back_Recovery_Factor}}</td>
+                            <td>{{data.back_Equity_DD_}}</td>
+                            <td>{{data.back_Trades}}</td>
+                            <td>{{data.forward_Forward_Result}}</td>
+                            <td>{{data.forward_Profit}}</td>
+                            <td>{{data.forward_Recovery_Factor}}</td>
+                            <td>{{data.forward_Equity_DD_}}</td>
+                            <td>{{data.forward_Trades}}</td>
+                            <td>{{data.profit_match}}</td>
+                            <td>{{data.total_profit}}</td>
+                            <td>{{data.max_original_dd}}</td>
+                            <td>{{data.lot_multiplier}}</td>
+                            <td>{{data.est_max_dd}}</td>
+
+
+
+
+                            
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+       
+    </div>
+
+    <!-- Add Bootstrap JS and jQuery (required for Bootstrap) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <div id="error_message" style="color: red;"></div>
+
+    <script>
+        function parseXMLAndGetDate(xmlContent) {
+            // Parse the XML content
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+            // Find the 'Title' element and extract its text
+            const titleElement = xmlDoc.querySelector('Title');
+            const titleText = titleElement ? titleElement.textContent : '';
+
+            // Split the title text to extract start and end dates
+            const titleParts = titleText.split('M1').slice(-1)[0].trim().split('-');
+            const startDate = titleParts[0].replace(/\./g, '-');
+            const endDate = titleParts[1].replace(/\./g, '-');
+
+            return {
+                start: startDate,
+                end: endDate
+            };
+        }
+
+        document.getElementById('fileforward').addEventListener('change', function (event) {
+            checkDates();
+        });
+
+        document.getElementById('filebackward').addEventListener('change', function (event) {
+            checkDates();
+        });
+
+        function checkDates() {
+            const fileForward = document.getElementById('fileforward').files[0];
+            const fileBackward = document.getElementById('filebackward').files[0];
+
+            if (fileForward && fileBackward) {
+                const readerForward = new FileReader();
+                const readerBackward = new FileReader();
+
+                readerForward.onload = function (eForward) {
+                    readerBackward.onload = function (eBackward) {
+                        const xmlContentForward = eForward.target.result;
+                        const xmlContentBackward = eBackward.target.result;
+
+                        const dateForward = parseXMLAndGetDate(xmlContentForward);
+                        const dateBackward = parseXMLAndGetDate(xmlContentBackward);
+
+                        if (dateForward.start === dateBackward.start && dateForward.end === dateBackward.end) {
+                            // Dates match, display them
+                            document.getElementById('start_date').value = dateForward.start;
+                            document.getElementById('end_date').value = dateForward.end;
+                            document.getElementById('error_message').textContent = '';
+                        } else {
+                            // Dates don't match, show an error
+                            document.getElementById('start_date').value = '';
+                            document.getElementById('end_date').value = '';
+                            document.getElementById('error_message').textContent = 'Dates do not match.';
+                        }
+                    };
+
+                    readerBackward.readAsText(fileBackward);
+                };
+
+                readerForward.readAsText(fileForward);
+            }
+        }
+    </script>
+
+
+
+    <!-- <script>
+// Attach an event listener to the file input
+$(document).ready(function () {
+    $('#filebackward').on('change', function () {
+        // Create a FormData object to send the file
+        var formData = new FormData();
+        formData.append('fileforward', $('#fileforward')[0].files[0]);
+        formData.append('filebackward', $('#filebackward')[0].files[0]);
+
+        // Get the CSRF token from the cookie (Django sets it as a cookie)
+        var csrfToken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
+        
+        // Add the CSRF token to the headers of the AJAX request
+        $.ajax({
+            url: '/upload_file/',  // Replace with your Django view URL
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function (data) {
+                console.log(data);
+                console.log(typeof value);
+                
+                // Check if data has 'start' and 'end' properties
+                if (data.hasOwnProperty('start') && data.hasOwnProperty('end')) {
+                    const startDateString = data.start;
+                    const endDateString = data.end;
+                    console.log(startDateString)
+                    console.log(endDateString)
+
+                    // Set the input values with the date strings
+                    $('#start_date').val(startDateString);
+                    $('#end_date').val(endDateString);
+                    
+                    // Display the extracted date in the specified div
+                    $('#extractedDate').html('Extracted Date: ' + startDateString + ' - ' + endDateString);
+                }
+            },
+            error: function () {
+                alert('Error occurred while processing the file.');
+            }
+        });
+    });
+});
+
+    </script>
+    
+     -->
+</body>
+</html>
