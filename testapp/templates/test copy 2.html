@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Page</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css">
+
+
+<!--  -->
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.6/css/jquery.dataTables.css"> -->
+<!-- <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.6/js/jquery.dataTables.js"></script> -->
+<style>
+
+
+* {
+    margin: 0px;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+
+.heading {
+    display: flex;
+    background-color: #232f3e;
+    box-shadow: 0px 1px 2px #232f3e;
+
+}
+h1 {
+    color: coral;
+    font-weight: bold;
+    
+    background: transparent;
+    padding: 7px;
+    
+}
+
+
+.outer-wrapper {
+    margin: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.9);
+    max-width: fit-content;
+    max-height: fit-content;
+
+    
+}
+.table-wrapper {
+    overflow-y: scroll;
+    height: fit-content;
+    max-height: 66.4vh;
+    margin-top: 22px;
+    margin: 15px;
+    padding-bottom: 20px;
+    /* Add max-width property */
+    max-width: 100%;
+    
+}
+
+
+table {
+    
+    min-width: max-content;
+    
+    border-collapse: separate;
+    border-spacing: 0px;    
+    
+}
+
+
+
+table th{
+    position: sticky; 
+    top: 0px;
+    
+    background-color: #133b5c;
+    color: rgb(241, 245, 179);
+    
+    text-align: center;
+    font-weight: normal;
+    font-size: 16.5px;
+    outline: 0.7px solid black;
+    border: 1.5px solid black;
+
+} 
+
+
+
+table th, table td {
+    
+    padding: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    
+}
+
+table td {
+    text-align: left;
+    
+    font-size: 10px;
+    border: 1px solid rgb(177, 177, 177);
+    padding-left: 20px;
+    
+}
+
+/* .table {
+    overflow-x: auto;
+} */
+
+
+</style>
+</head>
+<body style="padding-left: 10px;padding-right: 5px;">
+        <h1 class="mb-4">Date Selector and File Upload</h1>
+
+        
+
+        <!-- File Selector -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Date Pickers -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="datePicker1">Start:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" >
+            </div>
+            <div class="col-md-6">
+                <label for="datePicker2">End:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date">
+            </div>
+            <div class="col-md-6">
+                <label for="datePicker2">Forward:</label>
+                <input type="date" class="form-control" id="forward" name="forward">
+            </div>
+        </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="fileInput">Forward Files:</label>
+                    <input type="file" class="form-control-file" id="fileforward" name="fileforward" accept=".xml">
+                </div>
+                <div class="col-md-6">
+                    <label for="fileInput">Backward Files:</label>
+                    <input type="file" class="form-control-file" id="filebackward" name="filebackward" accept=".xml">
+                </div>
+            </div>
+            <hr>
+            <br>
+                     <!-- Submit Button -->
+         <div class="row">
+            <div class="col-md-1">
+                <button type="submit" id="parseButton" class="btn btn-primary">Submit</button>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Clear</button>
+            </div>
+        </div>
+            </form>    
+            <hr>
+        
+
+
+        <div id="toolbar">
+              <select class="form-control">
+                  <option value="">Export Basic</option>
+                  <option value="all">Export All</option>
+                  <option value="selected">Export Selected</option>
+              </select>
+          </div>
+        <div class="outer-wrapper">
+            <div id="pagination" class="text-center">
+                <a href="#" id="prev-page" class="btn btn-primary">Previous</a>
+                <span id="current-page" class="page-link">1</span>
+                <a href="#" id="next-page" class="btn btn-primary">Next</a>
+            </div>
+            <div class="table-wrapper">
+          <table id="table" 
+                 data-toggle="table"
+                 data-search="true"
+                 data-filter-control="true" 
+                 data-show-export="true"
+                 data-click-to-select="true"
+                 data-toolbar="#toolbar">
+            <thead>
+              <tr>
+
+              <th data-field="state" data-checkbox="true"></th>
+              <th data-field="" data-filter-control="input" data-sortable="true" data-width="20">Optimisation Name</th>
+
+              <th  data-field="examen" data-filter-control="select" data-sortable="true" >Back Pass</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Result</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Recovery Factor</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Equity DD%</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Trades</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Result</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Recovery Factor</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Equity DD%</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Trades</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Profit Match %</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Total Original Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Max Original DD</th>
+
+  
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Table content goes here -->
+              {% for data in datas %}
+              <tr>
+                  <td>{{filename}}</td>
+                  <td>{{data.back_pass}}</td>
+                  <td>{{data.back_Result}}</td>
+                  <td>{{data.back_Profit}}</td>
+                  <td>{{data.back_Recovery_Factor}}</td>
+                  <td>{{data.back_Equity_DD_}}</td>
+                  <td>{{data.back_Trades}}</td>
+                  <td>{{data.forward_Forward_Result}}</td>
+                  <td>{{data.forward_Profit}}</td>
+                  <td>{{data.forward_Recovery_Factor}}</td>
+                  <td>{{data.forward_Equity_DD_}}</td>
+                  <td>{{data.forward_Trades}}</td>
+                  <td>{{data.profit_match}}</td>
+                  <td>{{data.total_profit}}</td>
+                  <td>{{data.max_original_dd}}</td>
+
+
+
+
+
+                  
+              </tr>
+              {% endfor %}
+              
+          </tbody>
+          </table>
+
+                </div>
+        </div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize variables
+        const table = document.getElementById('table'); // Replace with the ID of your table
+        const tableBody = table.querySelector('tbody'); // Assuming you have a tbody for your table
+        let currentPage = 1;
+        const itemsPerPage = 20; // Number of items to display per page
+
+        // Function to show data for the current page
+        function showPage(page) {
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            // Hide all table rows
+            for (let i = 0; i < tableBody.rows.length; i++) {
+                tableBody.rows[i].style.display = 'none';
+            }
+
+            // Show rows for the current page
+            for (let i = startIndex; i < endIndex && i < tableBody.rows.length; i++) {
+                tableBody.rows[i].style.display = 'table-row';
+            }
+
+            // Update the current page number in the pagination buttons
+            document.getElementById('current-page').textContent = page;
+        }
+
+        // Initial page display
+        showPage(currentPage);
+
+        // Event listener for "Previous" button
+        document.getElementById('prev-page').addEventListener('click', function () {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+
+        // Event listener for "Next" button
+        document.getElementById('next-page').addEventListener('click', function () {
+            if (currentPage < Math.ceil(tableBody.rows.length / itemsPerPage)) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+    });
+</script>
+
+
+</script>
+
+
+    <script>
+      //exporte les données sélectionnées
+var $table = $('#table');
+    $(function () {
+        $('#toolbar').find('select').change(function () {
+            $table.bootstrapTable('refreshOptions', {
+                exportDataType: $(this).val()
+            });
+        });
+    })
+
+		var trBoldBlue = $("table");
+
+	$(trBoldBlue).on("click", "tr", function (){
+			$(this).toggleClass("bold-blue");
+	});
+    </script>
+    <!-- Add Bootstrap JS and jQuery (required for Bootstrap) -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js"></script>
+  <script src="https://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
+
+
+    <script>
+        function parseXMLAndGetDate(xmlContent) {
+            // Parse the XML content
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+            // Find the 'Title' element and extract its text
+            const titleElement = xmlDoc.querySelector('Title');
+            const titleText = titleElement ? titleElement.textContent : '';
+
+            // Split the title text to extract start and end dates
+            const titleParts = titleText.split('M1').slice(-1)[0].trim().split('-');
+            const startDate = titleParts[0].replace(/\./g, '-');
+            const endDate = titleParts[1].replace(/\./g, '-');
+
+            return {
+                start: startDate,
+                end: endDate
+            };
+        }
+
+        document.getElementById('fileforward').addEventListener('change', function (event) {
+            checkDates();
+        });
+
+        document.getElementById('filebackward').addEventListener('change', function (event) {
+            checkDates();
+        });
+
+        function checkDates() {
+            const fileForward = document.getElementById('fileforward').files[0];
+            const fileBackward = document.getElementById('filebackward').files[0];
+
+            if (fileForward && fileBackward) {
+                const readerForward = new FileReader();
+                const readerBackward = new FileReader();
+
+                readerForward.onload = function (eForward) {
+                    readerBackward.onload = function (eBackward) {
+                        const xmlContentForward = eForward.target.result;
+                        const xmlContentBackward = eBackward.target.result;
+
+                        const dateForward = parseXMLAndGetDate(xmlContentForward);
+                        const dateBackward = parseXMLAndGetDate(xmlContentBackward);
+
+                        if (dateForward.start === dateBackward.start && dateForward.end === dateBackward.end) {
+                            // Dates match, display them
+                            document.getElementById('start_date').value = dateForward.start;
+                            document.getElementById('end_date').value = dateForward.end;
+                            document.getElementById('error_message').textContent = '';
+                        } else {
+                            // Dates don't match, show an error
+                            document.getElementById('start_date').value = '';
+                            document.getElementById('end_date').value = '';
+                            document.getElementById('error_message').textContent = 'Dates do not match.';
+                        }
+                    };
+
+                    readerBackward.readAsText(fileBackward);
+                };
+
+                readerForward.readAsText(fileForward);
+            }
+        }
+
+        
+    </script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#your-table-id').DataTable();
+    });
+    </script>
+
+
+
+
+
+
+<!-- <script>
+    document.getElementById('parseButton').addEventListener('click', function (e) {
+  const fileInput = document.getElementById('fileforward');
+  console.log('here')
+  e.preventDefault();
+  if (fileInput.files.length > 0) {
+    const selectedFile = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const xmlString = event.target.result;
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+      var csrfToken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
+      const jsonData = xmlToJson(xmlDoc);
+      var slicedData = jsonData.slice(0, 10);
+      console.log(JSON.stringify(slicedData))
+      // Make an AJAX POST request to your Django view
+    $.ajax({
+    url: '/upload_file/', // Replace with the correct URL for your Django view
+    type: 'POST',
+    data: JSON.stringify(slicedData), // Use formData for file uploads
+    processData: false,
+    contentType: 'application/json',
+    headers: {
+        'X-CSRFToken': csrfToken
+    },
+    success: function (response) {
+        // Handle the response from the Django view, if needed
+        console.log(response);
+    },
+    error: function () {
+        // Handle any errors that occur during the AJAX request
+        alert('Error occurred while sending data to Django.');
+    },
+});
+      // Now you have the JSON data from the parsed XML
+    };
+
+    reader.readAsText(selectedFile);
+  } else {
+    alert('Please select an XML file.');
+  }
+});
+function xmlToJson(xml) {
+  const jsonData = [];
+  const rows = xml.getElementsByTagName('Row'); // Assuming 'Row' is the element name for each row
+
+  // Extract header row for keys
+  const headerRow = rows[0];
+  const headerCells = headerRow.getElementsByTagName('Cell');
+  const keys = [];
+
+  for (let j = 0; j < headerCells.length; j++) {
+    const headerCell = headerCells[j];
+    const headerData = headerCell.getElementsByTagName('Data')[0].textContent;
+    keys.push(headerData);
+  }
+
+  // Iterate through data rows (starting from the second row)
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const rowData = {};
+
+    const cells = row.getElementsByTagName('Cell');
+    for (let j = 0; j < cells.length; j++) {
+      const cell = cells[j];
+      const cellData = {};
+
+      const data = cell.getElementsByTagName('Data')[0];
+      if (data) {
+        const dataType = data.getAttribute('ss:Type'); // Assuming 'ss:Type' contains the data type
+        const cellValue = data.textContent;
+
+        if (dataType === 'Number') {
+          cellData.value = parseFloat(cellValue);
+        } else if (dataType === 'String') {
+          cellData.value = cellValue;
+        }
+
+        // Use header as key
+        rowData[keys[j]] = cellData;
+      }
+    }
+
+    jsonData.push(rowData);
+  }
+
+  return jsonData;
+}
+
+</script> -->
+
+<script>
+    $(document).ready(function () {
+        $('#filebackward').on('change', function () {
+            // Assuming the file inputs have date values in their names or attributes
+            var startDateValue = $('#fileforward').val(); // Get the date from the fileforward input
+            var endDateValue = $('#filebackward').val();   // Get the date from the filebackward input
+    
+            // Set the input values with the date values from file inputs
+            $('#start_date').val(startDateValue);
+            $('#end_date').val(endDateValue);
+    
+            // Display the extracted date in the specified div
+            $('#extractedDate').html('Extracted Date: ' + startDateValue + ' - ' + endDateValue);
+        });
+    });
+    </script>
+
+</body>
+</html>

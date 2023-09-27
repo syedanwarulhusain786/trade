@@ -19,7 +19,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
 
-    path('', views.test, name='test'),
+    path('sitefinder/', views.test, name='sitefinder'),
     path('upload_file/', views.upload_file, name='upload_file'),
     
     

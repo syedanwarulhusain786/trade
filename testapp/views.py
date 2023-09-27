@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect 
 # Create your tests here.
-
+from django.core.paginator import Paginator
 
 from django.contrib import messages
 from django.shortcuts import render, redirect 
@@ -39,7 +39,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 import razorpay
 
-
+from django.http import HttpResponseBadRequest
 
 from rest_framework.views import APIView
 # from accounts.serializers import *
@@ -55,13 +55,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 # Create your views here.
 import datetime
-
+from django.db.models import Q
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from django.http import HttpResponse
 from django.http import JsonResponse
-
-
+from django.contrib import messages
+from .models import Data
 # Create your views here.
 # views.py
 from rest_framework.parsers import FileUploadParser
@@ -122,16 +122,16 @@ def get_rows_back(soup):
             f"back_{back_result}":dt[1].text,
             f"back_{back_profit}":dt[2].text,
             f"back_{back_r_f}":dt[5].text,
-            f"back_{back_e_dd_per}":dt[8].text,
+            f"back_{back_e_dd_per}d":dt[8].text,
             f"back_{back_trades}":dt[9].text,
         }
         
     return data
 
-def get_rows_forwad(soup,res,diff):
+def get_rows_forwad(soup,res,diff,file_name,user_ip):
     deposit=100000
-    ok_dd=(4/100)*deposit
-    print(ok_dd)
+    ok_dd=1000
+    # print(ok_dd)
     data=[]
     forward_head=soup.find('Row').find_all("ss:Cell")
     forward_pass=forward_head[0].text
@@ -142,13 +142,17 @@ def get_rows_forwad(soup,res,diff):
     forward_trades=forward_head[10].text.replace(' ','_')
     for d in soup.find_all('Row')[1:]:
         dt = d.find_all("Cell")
-        if dt[0].text.strip() in res:
+        if dt[0].text.strip() in res :#and dt[0].text.strip() =='7703':
+            res[dt[0].text][f"ips"]=user_ip
+            
+            res[dt[0].text][f"filename"]=file_name
             res[dt[0].text][f"forward_{forward_result}"]=dt[1].text
             res[dt[0].text][f"forward_{forward_profit}"]=dt[3].text
             res[dt[0].text][f"forward_{forward_r_f}"]=dt[6].text
-            res[dt[0].text][f"forward_{forward_e_dd_per}"]=dt[9].text
+            res[dt[0].text][f"forward_{forward_e_dd_per}d"]=dt[9].text
             res[dt[0].text][f"forward_{forward_trades}"]=dt[10].text
             try:
+                # print(float(dt[3].text),float(res[dt[0].text]['back_Profit']),diff)
                 res[dt[0].text][f"profit_match"]=round((float(dt[3].text)/(float(res[dt[0].text]['back_Profit'])/diff))*100,2)
             except:
                 res[dt[0].text][f"profit_match"]=0
@@ -161,19 +165,13 @@ def get_rows_forwad(soup,res,diff):
                 
             except:
                 res[dt[0].text][f"max_original_dd"]=0
-            try:
-                res[dt[0].text][f"lot_multiplier"]=round(ok_dd/res[dt[0].text][f"max_original_dd"],2)
-            except:
-                res[dt[0].text][f"lot_multiplier"]=0
-            try:
-                res[dt[0].text][f"est_max_dd"]=round(res[dt[0].text][f"lot_multiplier"]*res[dt[0].text][f"max_original_dd"], 2)
-            except:
-                res[dt[0].text][f"est_max_dd"]=0
-            data.append(res[dt[0].text])    
+
+            data.append(res[dt[0].text])   
+             
             
     return data
 
-def merge_xml(file1, file2,diff):
+def merge_xml(file1, file2,diff,file_name,user_ip):
             # Implement your CSV merging logic here
         # You can use the csv module to read and merge the data from the two files
         soup1 = BeautifulSoup(file1, 'xml')
@@ -184,12 +182,10 @@ def merge_xml(file1, file2,diff):
         
         # For demonstration purposes, we'll just concatenate the XML strings
         merged_xml_data = get_rows_back(soup2)
-        print(len(merged_xml_data))
         time.sleep(10)
         
-        merged_xml_data = get_rows_forwad(soup1,merged_xml_data,diff)
+        merged_xml_data = get_rows_forwad(soup1,merged_xml_data,diff,file_name,user_ip)
         time.sleep(10)
-        print(len(merged_xml_data))
         
         # Example:
         # Read file1 and file2 and merge the data into merged_data
@@ -198,7 +194,6 @@ def merge_xml(file1, file2,diff):
     
     
 def calculation(date2_str,date1_str):
-    print(date2_str,date1_str)
     # Convert the date strings to datetime objects
     date1 = datetime.strptime(date1_str, '%Y-%m-%d')
     date2 = datetime.strptime(date2_str, '%Y-%m-%d')
@@ -207,46 +202,119 @@ def calculation(date2_str,date1_str):
     date_difference = (date2 - date1).days
 
     # Calculate the number of weeks
-    weeks = date_difference // 7
-    print(weeks)
+    weeks = date_difference / 7
     return weeks
 def test(request):
-    global extracted_date
-   
-    
-    context={}
-    if request.method == 'POST':
-        forward_uploaded_file = request.FILES['fileforward']
-        backward_uploaded_file = request.FILES['filebackward']
+    context = {}
+    merged_data = [] 
+    file_name=''
+    user_ip = request.META.get('REMOTE_ADDR', None)
+    if request.method == 'POST' and 'clear1' in request.POST:
+        
+        Data.objects.filter(ips=user_ip).delete()
+        forward_uploaded_file = request.FILES.get('fileforward')
+        backward_uploaded_file = request.FILES.get('filebackward')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         forward_date = request.POST.get('forward')
-        g15=calculation(forward_date,start_date)
-        g16=calculation(end_date,forward_date)
-        g17=g15/g16
-        file_name=forward_uploaded_file.name.split('.')[0]
-
-        merged=merge_xml( forward_uploaded_file, backward_uploaded_file,g17)
-        # data=[value for value in merged.values()]
         
-        context={
-            'filename':file_name,
-            'datas':merged
-        }
-    return render(request, 'test.html',context=context )
+        # Check if both files were uploaded
+        if not forward_uploaded_file or not backward_uploaded_file:
+            messages.success(request,"Both forward and backward files are required.")
+            return redirect('sitefinder')
+        # Check if the uploaded files are XML files
+        if not forward_uploaded_file.name.endswith('.xml') or not backward_uploaded_file.name.endswith('.xml'):
+            messages.success(request,"Both files must be XML files.")
+            return redirect('sitefinder')
+        g15 = calculation(forward_date, start_date)
+        g16 = calculation(end_date, forward_date)
+        g17 = g15 / g16
+        file_name = forward_uploaded_file.name.split('.')[0]
 
+        merged_data = merge_xml(forward_uploaded_file, backward_uploaded_file, g17,file_name,user_ip)
+        instances_to_save = [Data(**entry) for entry in merged_data]
+
+        # Use bulk_create to save all instances in one go
+        Data.objects.bulk_create(instances_to_save)
+        messages.success(request,"Data is Saved SuccessFully")
+    q_objects = Q(ips=user_ip)
+    query = request.GET.get('q', '')
+    profit_match_min = request.GET.get('profit_match_min', '')
+    profit_match_max = request.GET.get('profit_match_max', '')
+    back_recovery_factor = request.GET.get('back_recovery_factor', '')
+    forward_recovery_factor = request.GET.get('forward_recovery_factor', '')
+    back_result = request.GET.get('back_result', '')
+    forward_result = request.GET.get('forward_result', '')
+        # If no query is provided, return all objects
+    merged=Data.objects.filter(ips=user_ip)
+    if query:
+        # Define the Q objects for each field you want to search
+        # Replace 'field1', 'field2', etc. with the actual field names of your model
+        q_objects &= (Q(ips__icontains=query) |
+            Q(filename__icontains=query) |
+            Q(back_pass__icontains=query) |
+            Q(back_Result__icontains=query) |
+            Q(back_Profit__icontains=query) |
+            Q(back_Recovery_Factor__icontains=query) |
+            Q(back_Equity_DD_d__icontains=query) |
+            Q(back_Trades__icontains=query) |
+            Q(forward_Forward_Result__icontains=query) |
+            Q(forward_Profit__icontains=query) |
+            Q(forward_Recovery_Factor__icontains=query) |
+            Q(forward_Equity_DD_d__icontains=query) |
+            Q(forward_Trades__icontains=query) |
+            Q(profit_match__icontains=query) |
+            Q(total_profit__icontains=query) |
+            Q(max_original_dd__icontains=query))
+        # Perform the query to filter your model
+
+
+
+    if profit_match_min:
+        q_objects &= Q(profit_match__gte=profit_match_min)
+    if profit_match_max:
+        q_objects &= Q(profit_match__lte=profit_match_max)
+
+    if back_recovery_factor:
+        q_objects &= Q(back_Recovery_Factor__icontains=back_recovery_factor)
+    if forward_recovery_factor:
+        q_objects &= Q(forward_Recovery_Factor__icontains=forward_recovery_factor)
+
+    if back_result:
+        q_objects &= Q(back_Result__icontains=back_result)
+    if forward_result:
+        q_objects &= Q(forward_Forward_Result__icontains=forward_result)
+    try:
+        merged = Data.objects.filter(q_objects)
+    except:
+        merged = Data.objects.all()
+
+    paginator = Paginator(merged, 20)  # Display 20 items per page
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    if request.method == 'POST' and 'clear' in request.POST:
+        Data.objects.filter(ips=user_ip).delete()
+    return render(request, 'test.html', {'pages': page,'filename':file_name})
+
+
+import json
 def upload_file(request):
     global extracted_date
     if request.method == 'POST':
-        forward_uploaded_file = request.FILES['fileforward']
-        backward_uploaded_file = request.FILES['filebackward']
+        json_data = json.loads(request.body)
+
+        # Now you can access and manipulate the JSON data as needed
+        # For example, print it to the console
+
+        # forward_uploaded_file = request.FILES['fileforward']
+        # backward_uploaded_file = request.FILES['filebackward']
         
         # Extract the date from the uploaded file
-        extracted_date = get_date(forward_uploaded_file,backward_uploaded_file)
+        # extracted_date = get_date(forward_uploaded_file,backward_uploaded_file)
         # You can now use the extracted_date as needed, e.g., save it to a model or perform other actions.
         
         # For demonstration purposes, we'll return the extracted date as an HTTP response.
-        return JsonResponse(extracted_date)
+        return JsonResponse({"start_date":"false"})
 
     
 

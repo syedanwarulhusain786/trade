@@ -5,11 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beautiful Page</title>
     <!-- Add Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css">
+
+
+<!--  -->
+
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.6/css/jquery.dataTables.css"> -->
+<!-- <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.6/js/jquery.dataTables.js"></script> -->
+<style>
+
+html, body {
+    /* overflow: hidden; */
+    width: 100%;
+    height: 99%;
+    margin: 0;
+    padding: 0;
+}
+* {
+    margin: 0px;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+
+.heading {
+    display: flex;
+    background-color: #232f3e;
+    box-shadow: 0px 1px 2px #232f3e;
+
+}
+h1 {
+    color: coral;
+    font-weight: bold;
+    
+    background: transparent;
+    padding: 7px;
+    
+}
+
+
+.outer-wrapper {
+    margin: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.9);
+    max-width: fit-content;
+    max-height: fit-content;
+
+    
+}
+.table-wrapper {
+    overflow-y: scroll;
+    height: fit-content;
+    max-height: 66.4vh;
+    margin-top: 22px;
+    margin: 15px;
+    padding-bottom: 20px;
+    /* Add max-width property */
+    max-width: 100%;
+    
+}
+
+
+table {
+    
+    min-width: max-content;
+    
+    border-collapse: separate;
+    border-spacing: 0px;    
+    
+}
+
+
+
+table th{
+    position: sticky; 
+    top: 0px;
+    
+    background-color: #133b5c;
+    color: rgb(241, 245, 179);
+    
+    text-align: center;
+    font-weight: normal;
+    font-size: 15px;
+    outline: 0.7px solid black;
+    border: 1.5px solid black;
+
+} 
+
+
+
+table th, table td {
+    
+    padding: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    
+}
+
+table td {
+    text-align: left;
+    
+    font-size: 15px;
+    border: 1px solid rgb(177, 177, 177);
+    padding-left: 20px;
+    
+}
+
+/* .table {
+    overflow-x: auto;
+} */
+/* Style for the form container */
+.search-form {
+    margin-left: 10%;
+}
+
+/* Style for the input field */
+.search-input {
+    height: 30px;
+    width: 200px;
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 20px; /* Add rounded corners */
+    padding: 5px 10px; /* Add padding */
+    outline: none; /* Remove the input focus outline */
+}
+.search-input-o {
+    height: 30px;
+    width: 70px;
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 20px; /* Add rounded corners */
+    padding: 5px 5px; /* Add padding */
+    outline: none; /* Remove the input focus outline */
+}
+/* Style for the search button */
+.search-button {
+    height: 30px;
+    width: 50px;
+    border: none; /* Remove the button border */
+    border-radius: 20px; /* Add rounded corners */
+    background-color: #007bff; /* Button background color */
+    color: #fff; /* Text color */
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+/* Hover effect for the search button */
+.search-button:hover {
+    background-color: #0056b3; /* Darker background color on hover */
+}
+
+</style>
 </head>
-<body>
-    <div class="container mt-5" style="margin-left: 50px;">
+<body style="padding-left: 10px;padding-right: 5px;">
         <h1 class="mb-4">Date Selector and File Upload</h1>
 
         
@@ -33,109 +186,185 @@
             </div>
         </div>
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label for="fileInput">Forward Files:</label>
                     <input type="file" class="form-control-file" id="fileforward" name="fileforward" accept=".xml">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label for="fileInput">Backward Files:</label>
                     <input type="file" class="form-control-file" id="filebackward" name="filebackward" accept=".xml">
                 </div>
+                <div class="col-md-3">
+                    <label for="fileInput">Upload .Set File:</label>
+                    <input type="file" class="form-control-file" id="fileset" name="fileset" accept=".set">
+                </div>
             </div>
+            <hr>
+            <br>
                      <!-- Submit Button -->
-         <div class="row">
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary">Clear</button>
-            </div>
-        </div>
-        </form>    
-
-        
-
-        <!-- Submit Button -->
-        <div class="row">
-            
-        </div>
-
-        <!-- Table Container -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Data Table</h2>
+            <div class="row">
+                <div class="col-md-1">
+                    <button type="submit" id="parseButton" name="clear1" class="btn btn-primary">Submit</button>
+                </div>
                 
-                <table class="table table-bordered table-dark">
-                    <thead>
-                        <tr>
-                            <th scope="col">Optimisation Name</th>
-                            <th scope="col">Back Pass</th>
-                            <th scope="col">Back Result</th>
-                            <th scope="col">Back Profit</th>
-                            <th scope="col">Back Recovery Factor</th>
-                            <th scope="col">Back Equity DD%</th>
-                            <th scope="col">Back Trades</th>
-                            <th scope="col">Forward Result</th>
-                            <th scope="col">Forward Profit</th>
-                            <th scope="col">Forward Recovery Factor</th>
-                            <th scope="col">Forward Equity DD%</th>
-                            <th scope="col">Forward Trades</th>
-                            <th scope="col">Profit Match %</th>
-                            <th scope="col">Total Original Profit</th>
-                            <th scope="col">Max Original DD</th>
-                            <th scope="col">Lot Multiplier</th>
-                            <th scope="col">Est.Max DD</th>
-
-
-
-
-
-
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <!-- Table content goes here -->
-                        {% for data in datas %}
-                        <tr>
-                            <td>{{filename}}</td>
-                            <td>{{data.back_pass}}</td>
-                            <td>{{data.back_Result}}</td>
-                            <td>{{data.back_Profit}}</td>
-                            <td>{{data.back_Recovery_Factor}}</td>
-                            <td>{{data.back_Equity_DD_}}</td>
-                            <td>{{data.back_Trades}}</td>
-                            <td>{{data.forward_Forward_Result}}</td>
-                            <td>{{data.forward_Profit}}</td>
-                            <td>{{data.forward_Recovery_Factor}}</td>
-                            <td>{{data.forward_Equity_DD_}}</td>
-                            <td>{{data.forward_Trades}}</td>
-                            <td>{{data.profit_match}}</td>
-                            <td>{{data.total_profit}}</td>
-                            <td>{{data.max_original_dd}}</td>
-                            <td>{{data.lot_multiplier}}</td>
-                            <td>{{data.est_max_dd}}</td>
-
-
-
-
-                            
-                        </tr>
-                        {% endfor %}
-
-                    </tbody>
-                </table>
+            
             </div>
+            </form>    
+            
+            <hr>
+            {% if messages %}
+            <div  class="messages alert alert-danger" role="alert">
+                <ul>
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+
+        <div id="toolbar">
+
+          </div>
+        <div class="outer-wrapper text-center">
+
+            <div class="pagination ">
+                <span class="step-links">
+                    {% if pages.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ pages.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="current-page">
+                        Page {{ pages.number }} of {{ pages.paginator.num_pages }}.
+                    </span>
+            
+                    {% if pages.has_next %}
+                        <a href="?page={{ pages.next_page_number }}">next</a>
+                        <a href="?page={{ pages.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="col-md-1">
+                    <button type="submit" name="clear" class="btn btn-primary">Clear Your Data</button>
+                </div>
+            </form>
+            <form method="get" action="{% url 'sitefinder' %}" class="search-form">
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        <label for="profit_matchl">Profit Match</label>
+                        <input id="profit_match_min" type="text" name="profit_match_min" value="{{ query }}" placeholder="Max" class="search-input-o">
+                        <input id="profit_match_max" type="text" name="profit_match_max" value="{{ query }}" placeholder="Min" class="search-input-o">
+                    
+                    </div>
+                    <div class="col-md-3">
+                        <label for="BackRecovery">Back</label>
+                        <input id="BackRecovery" type="text" name="back_recovery_factor" value="{{ query }}" placeholder="Recovery Factor" class="search-input-o">
+                        <label for="forwardRecovery">Forward</label>
+                        <input id="forwardRecovery" type="text" name="forward_recovery_factor" value="{{ query }}" placeholder="Recovery Factor" class="search-input-o">
+                    
+                    </div>
+                    <div class="col-md-3">
+                        <label for="BackResult">Back</label>
+                        <input id="BackResult" type="text" name="back_result" value="{{ query }}" placeholder="Result" class="search-input-o">
+                        <label for="forwardResult">Forward</label>
+                        <input id="forwardResult" type="text" name="forward_result" value="{{ query }}" placeholder="Result" class="search-input-o">
+                    
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="q" value="{{ query }}" placeholder="Search..." class="search-input">
+                        <button type="submit" class="search-button">Search</button>
+
+                    </div>
+                </div>
+            </form>
+            <div class="table-wrapper">
+          <table id="table" 
+                 data-toggle="table"
+                 data-search="true"
+                 data-filter-control="true" 
+                 data-show-export="true"
+                 data-click-to-select="true"
+                 data-toolbar="#toolbar">
+            <thead>
+              <tr>
+
+              <!-- <th data-field="state" data-checkbox="true"></th> -->
+              <th data-field="" data-filter-control="input" data-sortable="true" data-width="20">Optimisation Name</th>
+
+              <th  data-field="examen" data-filter-control="select" data-sortable="true" >Back Pass</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Result</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Recovery Factor</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Equity DD%</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Back Trades</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Result</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Recovery Factor</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Equity DD%</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Forward Trades</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Profit Match %</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Total Original Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Max Original DD</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="">Download</th>
+
+
+  
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Table content goes here -->
+              {% for page in pages %}
+              <tr>
+                  <td>{{page.filename}}</td>
+                  <td>{{page.back_pass}}</td>
+                  <td>{{page.back_Result}}</td>
+                  <td>{{page.back_Profit}}</td>
+                  <td>{{page.back_Recovery_Factor}}</td>
+                  <td>{{page.back_Equity_DD_d}}</td>
+                  <td>{{page.back_Trades}}</td>
+                  <td>{{page.forward_Forward_Result}}</td>
+                  <td>{{page.forward_Profit}}</td>
+                  <td>{{page.forward_Recovery_Factor}}</td>
+                  <td>{{page.forward_Equity_DD_d}}</td>
+                  <td>{{page.forward_Trades}}</td>
+                  <td>{{page.profit_match}}</td>
+                  <td>{{page.total_profit}}</td>
+                  <td>{{page.max_original_dd}}</td>
+                  <td><a href="" class="btn btn-primary">Download</a></td>
+
+
+
+
+
+
+
+                  
+              </tr>
+              {% endfor %}
+              
+              
+              
+          </tbody>
+          </table>
+
+                </div>
         </div>
 
-       
-    </div>
 
-    <!-- Add Bootstrap JS and jQuery (required for Bootstrap) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <div id="error_message" style="color: red;"></div>
+
+</script>
+
+
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
+
+
+
 
     <script>
         function parseXMLAndGetDate(xmlContent) {
@@ -201,60 +430,92 @@
                 readerForward.readAsText(fileForward);
             }
         }
-    </script>
 
-
-
-    <!-- <script>
-// Attach an event listener to the file input
-$(document).ready(function () {
-    $('#filebackward').on('change', function () {
-        // Create a FormData object to send the file
-        var formData = new FormData();
-        formData.append('fileforward', $('#fileforward')[0].files[0]);
-        formData.append('filebackward', $('#filebackward')[0].files[0]);
-
-        // Get the CSRF token from the cookie (Django sets it as a cookie)
-        var csrfToken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
         
-        // Add the CSRF token to the headers of the AJAX request
-        $.ajax({
-            url: '/upload_file/',  // Replace with your Django view URL
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRFToken': csrfToken
-            },
-            success: function (data) {
-                console.log(data);
-                console.log(typeof value);
-                
-                // Check if data has 'start' and 'end' properties
-                if (data.hasOwnProperty('start') && data.hasOwnProperty('end')) {
-                    const startDateString = data.start;
-                    const endDateString = data.end;
-                    console.log(startDateString)
-                    console.log(endDateString)
+    </script>
+<script>
+    $(document).ready(function(){
+        $('table thead tr')
+        .clone(true)
+        .addclass('filters')
+        .appendTo("table thead")
+        var table =$("#table").DataTables({
+            paging:true,
+            pageLength:10,
+            lengthChange:true,
+            autowidth:true,
+            searching:true,
+            bInfo:true,
+            bSort:true,
 
-                    // Set the input values with the date strings
-                    $('#start_date').val(startDateString);
-                    $('#end_date').val(endDateString);
-                    
-                    // Display the extracted date in the specified div
-                    $('#extractedDate').html('Extracted Date: ' + startDateString + ' - ' + endDateString);
+            initComplete:function(){
+                var api=this.api();
+                api
+                    .columns([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+                    .eeq(0)
+                    .each(function(colIdx){
+                        var cell = $(".filter th").eq(
+                            $(api.column(colIdx).header()).index()
+                        );
+                        var title= $(cell).text();
+                        $(cell).html('<input type="text" placeholder="' +title+ '"/>');
+                        $(
+                            'input',
+                            $('.filters th').eq($(api.column(colIdx).header()).index())
+                        )
+                        .off('keyip change')
+                        on('keyup change',function(e){
+                            e.stopPropogation();
+                            $(this).attr('title',$(this).val());
+                            var regexr='({search})';
+                            var cursorPosition = this.selectectionStart;
+                            api
+                                .column(colIdx)
+                                .search(
+                                    this.value !=''
+                                        ?regexr.replace('{search}','((('+ this.value +')))')
+                                        :'',
+                                    this.value != '',
+                                    this.value ==''
+
+
+                                )
+                                .draw();
+                                $(this)
+                                    .focus()[0]
+                                    .setSelectionRange(cursorPosition,cursorPosition);
+                        });
+                    });
+
                 }
-            },
-            error: function () {
-                alert('Error occurred while processing the file.');
-            }
+        });
+        var newSearch =$('table').DataTables();
+        $("#search").keyup(function(){
+            newSearch.search($(this).value()).draw();
+        })
+    });
+</script>
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#filebackward').on('change', function () {
+            // Assuming the file inputs have date values in their names or attributes
+            var startDateValue = $('#fileforward').val(); // Get the date from the fileforward input
+            var endDateValue = $('#filebackward').val();   // Get the date from the filebackward input
+    
+            // Set the input values with the date values from file inputs
+            $('#start_date').val(startDateValue);
+            $('#end_date').val(endDateValue);
+    
+            // Display the extracted date in the specified div
+            $('#extractedDate').html('Extracted Date: ' + startDateValue + ' - ' + endDateValue);
         });
     });
-});
-
     </script>
-    
-     -->
+
 </body>
 </html>
