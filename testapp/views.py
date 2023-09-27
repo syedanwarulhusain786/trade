@@ -9,17 +9,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect 
 
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, pagination
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
-from django.utils.encoding import force_bytes,force_str,DjangoUnicodeDecodeError
-from django.core.mail import EmailMessage
+
 from django.utils.translation import gettext as _
 from django.shortcuts import render
 
@@ -27,33 +17,10 @@ from django.shortcuts import render
 from django.shortcuts import render
 
 
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from django.http import Http404
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-import razorpay
-
-from django.http import HttpResponseBadRequest
-
-from rest_framework.views import APIView
 # from accounts.serializers import *
 import time
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from django.http import Http404
 
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
-# Create your views here.
+
 import datetime
 from django.db.models import Q
 from datetime import datetime, timedelta
@@ -64,12 +31,7 @@ from django.contrib import messages
 from .models import Data
 # Create your views here.
 # views.py
-from rest_framework.parsers import FileUploadParser
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
-import csv
-from rest_framework.parsers import FileUploadParser
+
 import re
 
 def get_date(forward, backward):
