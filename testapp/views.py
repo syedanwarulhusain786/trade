@@ -239,14 +239,14 @@ def test(request):
         q_objects &= Q(profit_match__lte=profit_match_max)
 
     if back_recovery_factor:
-        q_objects &= Q(back_Recovery_Factor__icontains=back_recovery_factor)
+        q_objects &= Q(back_Recovery_Factor__gte=back_recovery_factor)
     if forward_recovery_factor:
-        q_objects &= Q(forward_Recovery_Factor__icontains=forward_recovery_factor)
+        q_objects &= Q(forward_Recovery_Factor__gte=forward_recovery_factor)
 
     if back_result:
-        q_objects &= Q(back_Result__icontains=back_result)
+        q_objects &= Q(back_Result__gte=back_result)
     if forward_result:
-        q_objects &= Q(forward_Forward_Result__icontains=forward_result)
+        q_objects &= Q(forward_Forward_Result__gte=forward_result)
     try:
         merged = Data.objects.filter(q_objects)
     except:
