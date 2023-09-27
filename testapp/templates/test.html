@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beautiful Page</title>
     <!-- Add Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.min.css">
@@ -119,9 +125,6 @@ table td {
     
 }
 
-/* .table {
-    overflow-x: auto;
-} */
 /* Style for the form container */
 .search-form {
     margin-left: 10%;
@@ -158,6 +161,70 @@ table td {
 /* Hover effect for the search button */
 .search-button:hover {
     background-color: #0056b3; /* Darker background color on hover */
+}
+/* .table {
+    overflow-x: auto;
+} */
+/* Style for the form container */
+
+.paginate_button {
+  min-width: 4rem;
+  display: inline-block;
+  text-align: center;
+  padding: 1rem 1.6rem;
+  margin-top: -1rem;
+  border: 2px solid lightblue;
+  &:not(.previous) {
+    border-left: none;
+  }
+  &.previous {
+    border-radius: 8px 0 0 8px;
+    min-width: 7rem;
+  }
+  &.next {
+    border-radius: 0 8px 8px 0;
+    min-width: 7rem;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: #eee;
+    text-decoration: none;
+  }
+}
+
+#example_paginate {
+    padding-top: 20px;
+
+}
+
+/* Fix the pagination controls at the bottom */
+#example_paginate {
+    position: sticky;
+    bottom: 0;
+    background-color: #133b5c; /* Change this to your preferred background color */
+    z-index: 1;
+}
+
+/* Style the pagination controls if needed */
+#example_paginate .paginate_button {
+    background-color: #133b5c; /* Change this to your preferred button background color */
+    color: #fff; /* Change this to your preferred button text color */
+    margin: 0 2px;
+    border: 1px solid #133b5c; /* Change this to your preferred button border color */
+    border-radius: 3px;
+}
+
+#example_paginate .paginate_button.current {
+    background-color: coral; /* Change this to your preferred color for the current page button */
+    color: #fff; /* Change this to your preferred text color for the current page button */
+}
+table thead{
+    
+    position: sticky;
+    top: 0;
+    background-color: #133b5c; /* Change this to your preferred background color */
+    z-index: 2;
 }
 
 </style>
@@ -228,61 +295,45 @@ table td {
           </div>
         <div class="outer-wrapper text-center">
 
-            <div class="pagination ">
-                <span class="step-links">
-                    {% if pages.has_previous %}
-                        <a href="?page=1">&laquo; first</a>
-                        <a href="?page={{ pages.previous_page_number }}">previous</a>
-                    {% endif %}
-            
-                    <span class="current-page">
-                        Page {{ pages.number }} of {{ pages.paginator.num_pages }}.
-                    </span>
-            
-                    {% if pages.has_next %}
-                        <a href="?page={{ pages.next_page_number }}">next</a>
-                        <a href="?page={{ pages.paginator.num_pages }}">last &raquo;</a>
-                    {% endif %}
-                </span>
-            </div>
-            <form method="post" enctype="multipart/form-data">
+      
+            <!-- <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
                 <div class="col-md-1">
                     <button type="submit" name="clear" class="btn btn-primary">Clear Your Data</button>
                 </div>
-            </form>
-            <form method="get" action="{% url 'sitefinder' %}" class="search-form">
+            </form> -->
+            <div class="card">
                 <div class="row mt-2">
-                    <div class="col-md-3">
+                    <div class="col-md-3" style="padding-top: 10px;">
                         <label for="profit_matchl">Profit Match</label>
-                        <input id="profit_match_min" type="text" name="profit_match_max" value="{{ query }}" placeholder="Max" class="search-input-o">
-                        <input id="profit_match_max" type="text" name="profit_match_min" value="{{ query }}" placeholder="Min" class="search-input-o">
-                    
+                        <input id="profit_match_max" type="text" name="profit_match_max" value="{{ query }}" placeholder="Max" class="search-input-o">
+                        <input id="profit_match_min" type="text" name="profit_match_min" value="{{ query }}" placeholder="Min" class="search-input-o">
+                        <button type="button" id="clear_profit_match">Refresh</button>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" style="padding-top: 10px;">
                         <label for="BackRecovery">Back</label>
                         <input id="BackRecovery" type="text" name="back_recovery_factor" value="{{ query }}" placeholder="Recovery Factor" class="search-input-o">
                         <label for="forwardRecovery">Forward</label>
                         <input id="forwardRecovery" type="text" name="forward_recovery_factor" value="{{ query }}" placeholder="Recovery Factor" class="search-input-o">
                     
                     </div>
-                    <div class="col-md-3">
-                        <label for="BackResult">Back</label>
-                        <input id="BackResult" type="text" name="back_result" value="{{ query }}" placeholder="Result" class="search-input-o">
-                        <label for="forwardResult">Forward</label>
-                        <input id="forwardResult" type="text" name="forward_result" value="{{ query }}" placeholder="Result" class="search-input-o">
+                    <div class="col-md-3" style="padding-top: 10px;">
+                        <label for="backResultFilter">Back</label>
+                        <input id="backResultFilter" type="text" name="backResultFilter" value="{{ query }}" placeholder="Result" class="search-input-o">
+                        <label for="forwardResultFilter">Forward</label>
+                        <input id="forwardResultFilter" type="text" name="forwardResultFilter" value="{{ query }}" placeholder="Result" class="search-input-o">
                     
                     </div>
-                    <div class="col-md-3">
-                        <input type="text" name="q" value="{{ query }}" placeholder="Search..." class="search-input">
-                        <button type="submit" class="search-button">Search</button>
-
-                    </div>
+                 
                 </div>
-            </form>
+            </div>
+            <br>
+            <hr>
+
             <div class="table-wrapper">
-          <table id="table" 
+      
+          <table id="example" 
                  data-toggle="table"
                  data-search="true"
                  data-filter-control="true" 
@@ -319,7 +370,7 @@ table td {
               <!-- Table content goes here -->
               {% for page in pages %}
               <tr>
-                  <td>{{page.filename}}</td>
+                  <td>{{ page.filename }}</td>
                   <td>{{page.back_pass}}</td>
                   <td>{{page.back_Result}}</td>
                   <td>{{page.back_Profit}}</td>
@@ -354,14 +405,6 @@ table td {
                 </div>
         </div>
 
-
-
-</script>
-
-
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
 
 
 
@@ -433,69 +476,6 @@ table td {
 
         
     </script>
-<script>
-    $(document).ready(function(){
-        $('table thead tr')
-        .clone(true)
-        .addclass('filters')
-        .appendTo("table thead")
-        var table =$("#table").DataTables({
-            paging:true,
-            pageLength:10,
-            lengthChange:true,
-            autowidth:true,
-            searching:true,
-            bInfo:true,
-            bSort:true,
-
-            initComplete:function(){
-                var api=this.api();
-                api
-                    .columns([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
-                    .eeq(0)
-                    .each(function(colIdx){
-                        var cell = $(".filter th").eq(
-                            $(api.column(colIdx).header()).index()
-                        );
-                        var title= $(cell).text();
-                        $(cell).html('<input type="text" placeholder="' +title+ '"/>');
-                        $(
-                            'input',
-                            $('.filters th').eq($(api.column(colIdx).header()).index())
-                        )
-                        .off('keyip change')
-                        on('keyup change',function(e){
-                            e.stopPropogation();
-                            $(this).attr('title',$(this).val());
-                            var regexr='({search})';
-                            var cursorPosition = this.selectectionStart;
-                            api
-                                .column(colIdx)
-                                .search(
-                                    this.value !=''
-                                        ?regexr.replace('{search}','((('+ this.value +')))')
-                                        :'',
-                                    this.value != '',
-                                    this.value ==''
-
-
-                                )
-                                .draw();
-                                $(this)
-                                    .focus()[0]
-                                    .setSelectionRange(cursorPosition,cursorPosition);
-                        });
-                    });
-
-                }
-        });
-        var newSearch =$('table').DataTables();
-        $("#search").keyup(function(){
-            newSearch.search($(this).value()).draw();
-        })
-    });
-</script>
-
 
 
 
@@ -517,5 +497,105 @@ table td {
     });
     </script>
 
+
+
+
+
+
+
+
+<script>
+    $(document).ready(function() {
+  $("#example").DataTable();
+});
+
+</script>
+<script>
+$(document).ready(function () {
+    var table = $('#example').DataTable();
+
+
+
+    
+
+    $('#profit_match_min, #profit_match_max').on('input', function () {
+        var lowerLimit = parseFloat($('#profit_match_min').val().replace(',', '')) || null; // Remove commas if present
+        var upperLimit = parseFloat($('#profit_match_max').val().replace(',', '')) || null; // Remove commas if present
+
+        table.columns(12).search(function (value, index, row) {
+            var numericValue = parseFloat(value.replace(',', '')) || null; // Remove commas if present
+            
+            if (lowerLimit === null && upperLimit === null) {
+                return true; // Show all rows when limits are not specified
+            }
+
+            if (lowerLimit !== null && upperLimit !== null) {
+                return numericValue >= lowerLimit && numericValue <= upperLimit;
+            }
+
+            if (lowerLimit !== null) {
+                return numericValue >= lowerLimit;
+            }
+
+            if (upperLimit !== null) {
+                return numericValue <= upperLimit;
+            }
+
+            return true; // Show all rows if no condition matches
+        }).draw();
+    });
+
+    // Handle clearing both input fields
+    $('#clear_profit_match').on('click', function () {
+        $('#profit_match_min').val('');
+        $('#profit_match_max').val('');
+        table.columns(12).search('').draw();
+    });
+
+    // Add event listeners to input boxes for filtering
+    $('#BackRecovery').on('input', function () {
+        var backResultFilterValue = this.value;
+        if (!isNaN(backResultFilterValue)) {
+            table.columns(4).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+        }
+    });
+
+    $('#forwardRecovery').on('input', function () {
+        var backResultFilterValue = this.value;
+        if (!isNaN(backResultFilterValue)) {
+            table.columns(9).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+        }
+    });
+
+
+
+    $('#backResultFilter').on('input', function () {
+        var backResultFilterValue = parseFloat(this.value);
+        if (!isNaN(backResultFilterValue)) {
+            table.columns(2).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+        }
+    });
+
+    $('#forwardResultFilter').on('input', function () {
+        var forwardResultFilterValue = parseFloat(this.value);
+        if (!isNaN(forwardResultFilterValue)) {
+            table.columns(7).search(forwardResultFilterValue).draw(); // 4 is the index of the "Forward Result" column
+        }
+    });
+
+});
+</script>
+<script>
+  
+
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+
+
+
+
 </body>
+
 </html>

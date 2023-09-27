@@ -153,7 +153,7 @@ def merge_xml(file1, file2,diff,file_name,user_ip):
         # Read file1 and file2 and merge the data into merged_data
 
         return merged_xml_data
-    
+q_objects=''    
     
 def calculation(date2_str,date1_str):
     # Convert the date strings to datetime objects
@@ -167,7 +167,7 @@ def calculation(date2_str,date1_str):
     weeks = date_difference / 7
     return weeks
 def test(request):
-    context = {}
+    global q_objects
     merged_data = [] 
     file_name=''
     user_ip = request.META.get('REMOTE_ADDR', None)
@@ -200,64 +200,10 @@ def test(request):
         # Use bulk_create to save all instances in one go
         Data.objects.bulk_create(instances_to_save)
         messages.success(request,"Data is Saved SuccessFully")
-    q_objects = Q(ips=user_ip)
-    query = request.GET.get('q', '')
-    profit_match_min = request.GET.get('profit_match_min', '')
-    profit_match_max = request.GET.get('profit_match_max', '')
-    back_recovery_factor = request.GET.get('back_recovery_factor', '')
-    forward_recovery_factor = request.GET.get('forward_recovery_factor', '')
-    back_result = request.GET.get('back_result', '')
-    forward_result = request.GET.get('forward_result', '')
-        # If no query is provided, return all objects
-    merged=Data.objects.filter(ips=user_ip)
-    if query:
-        # Define the Q objects for each field you want to search
-        # Replace 'field1', 'field2', etc. with the actual field names of your model
-        q_objects &= (Q(ips__icontains=query) |
-            Q(filename__icontains=query) |
-            Q(back_pass__icontains=query) |
-            Q(back_Result__icontains=query) |
-            Q(back_Profit__icontains=query) |
-            Q(back_Recovery_Factor__icontains=query) |
-            Q(back_Equity_DD_d__icontains=query) |
-            Q(back_Trades__icontains=query) |
-            Q(forward_Forward_Result__icontains=query) |
-            Q(forward_Profit__icontains=query) |
-            Q(forward_Recovery_Factor__icontains=query) |
-            Q(forward_Equity_DD_d__icontains=query) |
-            Q(forward_Trades__icontains=query) |
-            Q(profit_match__icontains=query) |
-            Q(total_profit__icontains=query) |
-            Q(max_original_dd__icontains=query))
-        # Perform the query to filter your model
+    
+    merged = Data.objects.all()
 
-
-
-    if profit_match_min:
-        q_objects &= Q(profit_match__gte=profit_match_min)
-    if profit_match_max:
-        q_objects &= Q(profit_match__lte=profit_match_max)
-
-    if back_recovery_factor:
-        q_objects &= Q(back_Recovery_Factor__gte=back_recovery_factor)
-    if forward_recovery_factor:
-        q_objects &= Q(forward_Recovery_Factor__gte=forward_recovery_factor)
-
-    if back_result:
-        q_objects &= Q(back_Result__gte=back_result)
-    if forward_result:
-        q_objects &= Q(forward_Forward_Result__gte=forward_result)
-    try:
-        merged = Data.objects.filter(q_objects)
-    except:
-        merged = Data.objects.all()
-
-    paginator = Paginator(merged, 20)  # Display 20 items per page
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-    if request.method == 'POST' and 'clear' in request.POST:
-        Data.objects.filter(ips=user_ip).delete()
-    return render(request, 'test.html', {'pages': page,'filename':file_name})
+    return render(request, 'test.html', {'pages': merged,'filename':file_name,})
 
 
 import json
