@@ -171,6 +171,7 @@ def test(request):
     merged_data = [] 
     file_name=''
     user_ip = request.META.get('REMOTE_ADDR', None)
+    print(user_ip)
     if request.method == 'POST' and 'clear1' in request.POST:
         
         Data.objects.filter(ips=user_ip).delete()

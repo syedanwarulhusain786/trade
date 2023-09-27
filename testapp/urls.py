@@ -6,7 +6,6 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 from django.utils.translation import gettext as _
-from myapp.views import *
 
 from django.urls import path,include
 
