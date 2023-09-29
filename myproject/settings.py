@@ -130,3 +130,6 @@ STATICFILES_DIRS=[
 #     },
 # }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 10MB

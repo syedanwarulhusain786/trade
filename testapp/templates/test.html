@@ -100,7 +100,7 @@ table th{
     
     text-align: center;
     font-weight: normal;
-    font-size: 15px;
+    font-size: 13px;
     outline: 0.7px solid black;
     border: 1.5px solid black;
 
@@ -235,21 +235,29 @@ table thead{
         
 
         <!-- File Selector -->
-        <form method="post" enctype="multipart/form-data">
+        <form id="xmlUploadForm" enctype="multipart/form-data">
             {% csrf_token %}
             <!-- Date Pickers -->
-        <div class="row mb-4">
-            <div class="col-md-6">
+        <div class="row mb-6">
+            <div class="col-md-4">
                 <label for="datePicker1">Start:</label>
                 <input type="date" class="form-control" id="start_date" name="start_date" >
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="datePicker2">End:</label>
                 <input type="date" class="form-control" id="end_date" name="end_date">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="datePicker2">Forward:</label>
                 <input type="date" class="form-control" id="forward" name="forward">
+            </div>
+            <div class="col-md-4">
+                <label for="datePicker2">Account Balance:</label>
+                <input type="text" class="form-control" id="balance" name="forward">
+            </div>
+            <div class="col-md-4">
+                <label for="datePicker2">Wanted Drawdown:</label>
+                <input type="text" class="form-control" id="Drawdown" name="forward">
             </div>
         </div>
             <div class="row mb-4">
@@ -360,6 +368,12 @@ table thead{
               <th  data-field="examen" data-filter-control="select" data-sortable="true">Profit Match %</th>
               <th  data-field="examen" data-filter-control="select" data-sortable="true">Total Original Profit</th>
               <th  data-field="examen" data-filter-control="select" data-sortable="true">Max Original DD</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Lot Multiple</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Estimated Total DD</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Estimated Profit</th>
+              <th  data-field="examen" data-filter-control="select" data-sortable="true">Max DD</th>
+
+
               <th  data-field="examen" data-filter-control="select" data-sortable="">Download</th>
 
 
@@ -405,6 +419,7 @@ table thead{
                 </div>
         </div>
 
+        <div id="target-div"></div>
 
 
 
@@ -458,12 +473,12 @@ table thead{
                             // Dates match, display them
                             document.getElementById('start_date').value = dateForward.start;
                             document.getElementById('end_date').value = dateForward.end;
-                            document.getElementById('error_message').textContent = '';
+                            
                         } else {
                             // Dates don't match, show an error
                             document.getElementById('start_date').value = '';
                             document.getElementById('end_date').value = '';
-                            document.getElementById('error_message').textContent = 'Dates do not match.';
+                           
                         }
                     };
 
@@ -505,13 +520,244 @@ table thead{
 
 
 <script>
-    $(document).ready(function() {
-  $("#example").DataTable();
-});
+//     $(document).ready(function() {
+//   $("#example").DataTable();
+// });
 
 </script>
 <script>
-$(document).ready(function () {
+// $(document).ready(function () {
+//     var table = $('#example').DataTable();
+
+
+
+    
+
+//     $('#profit_match_min, #profit_match_max').on('input', function () {
+//         var lowerLimit = parseFloat($('#profit_match_min').val().replace(',', '')) || null; // Remove commas if present
+//         var upperLimit = parseFloat($('#profit_match_max').val().replace(',', '')) || null; // Remove commas if present
+
+//         table.columns(12).search(function (value, index, row) {
+//             var numericValue = parseFloat(value.replace(',', '')) || null; // Remove commas if present
+            
+//             if (lowerLimit === null && upperLimit === null) {
+//                 return true; // Show all rows when limits are not specified
+//             }
+
+//             if (lowerLimit !== null && upperLimit !== null) {
+//                 return numericValue >= lowerLimit && numericValue <= upperLimit;
+//             }
+
+//             if (lowerLimit !== null) {
+//                 return numericValue >= lowerLimit;
+//             }
+
+//             if (upperLimit !== null) {
+//                 return numericValue <= upperLimit;
+//             }
+
+//             return true; // Show all rows if no condition matches
+//         }).draw();
+//     });
+
+//     // Handle clearing both input fields
+//     $('#clear_profit_match').on('click', function () {
+//         $('#profit_match_min').val('');
+//         $('#profit_match_max').val('');
+//         table.columns(12).search('').draw();
+//     });
+
+//     // Add event listeners to input boxes for filtering
+//     $('#BackRecovery').on('input', function () {
+//         var backResultFilterValue = this.value;
+//         if (!isNaN(backResultFilterValue)) {
+//             table.columns(4).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+//         }
+//     });
+
+//     $('#forwardRecovery').on('input', function () {
+//         var backResultFilterValue = this.value;
+//         if (!isNaN(backResultFilterValue)) {
+//             table.columns(9).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+//         }
+//     });
+
+
+
+//     $('#backResultFilter').on('input', function () {
+//         var backResultFilterValue = parseFloat(this.value);
+//         if (!isNaN(backResultFilterValue)) {
+//             table.columns(2).search(backResultFilterValue).draw(); // 3 is the index of the "Back Result" column
+//         }
+//     });
+
+//     $('#forwardResultFilter').on('input', function () {
+//         var forwardResultFilterValue = parseFloat(this.value);
+//         if (!isNaN(forwardResultFilterValue)) {
+//             table.columns(7).search(forwardResultFilterValue).draw(); // 4 is the index of the "Forward Result" column
+//         }
+//     });
+
+// });
+</script>
+<script>
+  
+
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const xmlFileInput1 = document.getElementById('fileforward');
+  const xmlFileInput2 = document.getElementById('filebackward');
+  const submitButton = document.getElementById('parseButton');
+  const startDateInput = document.getElementById('start_date');
+  const endDateInput = document.getElementById('end_date');
+  const forwardInput = document.getElementById('forward');
+  const balance = document.getElementById('balance');
+  const drawdown = document.getElementById('Drawdown');
+  submitButton.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const jsonDataArray = [];
+
+    // Read the selected XML file from xmlFileInput2 with the name "back"
+    const file2 = xmlFileInput2.files[0];
+    if (!file2) {
+      alert('Please select an XML file for the "back" input.');
+      return;
+    }
+
+    const xmlData2 = await readFile(file2);
+    const jsonData2 = await parseXML(xmlData2, 'back');
+    jsonDataArray.push(jsonData2);
+
+    // Read the selected XML file from xmlFileInput1 with the name "forward"
+    const file1 = xmlFileInput1.files[0];
+    if (!file1) {
+      alert('Please select an XML file for the "forward" input.');
+      return;
+    }
+
+    const xmlData1 = await readFile(file1);
+    const jsonData1 = await parseXML(xmlData1, 'forward');
+    jsonDataArray.push(jsonData1);
+
+    // Display the parsed JSON data (you can modify this part as needed)
+    const additionalData = {
+      start_date: startDateInput.value,
+      end_date: endDateInput.value,
+      forward: forwardInput.value,
+      filename: file1.name,
+      balance:balance.value,
+      drawdown:drawdown.value
+    };
+
+    // Include additional data in the JSON payload
+    jsonDataArray.push(additionalData);
+    // Send the JSON data to your Django backend (you can use fetch or other methods)
+    sendJSONDataToDjango(jsonDataArray);
+  });
+
+  async function readFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsText(file);
+    });
+  }
+
+  async function parseXML(xmlData, name) {
+    return new Promise((resolve, reject) => {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
+      const headingRow = Array.from(xmlDoc.querySelectorAll('Row Cell Data')).map((cell) =>
+        cell.textContent.trim()
+      );
+
+      const dataRows = Array.from(xmlDoc.querySelectorAll('Row')).slice(1).map((row) => {
+        const rowData = {};
+        Array.from(row.querySelectorAll('Cell Data')).forEach((cell, index) => {
+          rowData[headingRow[index]] = cell.textContent.trim();
+        });
+        return rowData;
+      });
+
+      resolve({
+        name: name,
+        heading: headingRow,
+        data: dataRows,
+      });
+    });
+  }
+
+  function sendJSONDataToDjango(jsonDataArray) {
+    // Use fetch or other methods to send JSON data to your Django backend
+    fetch('/upload_file/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'), // Include the CSRF token in the request headers
+      },
+      body: JSON.stringify(jsonDataArray),
+    })
+      .then((response) => {
+        if (response.ok) {
+            return response.json(); 
+            // alert('Success sending JSON data to Django.');
+        } else {
+          alert('Error sending JSON data to Django.');
+        }
+      })
+      .then((data) => {
+      // Populate the DataTable with the response data
+      renderDataTable(data);
+    })
+      .catch((error) => {
+        alert('Error sending JSON data to Django: ' + error.message);
+      });
+  }
+  function renderDataTable(data) {
+    const table1 = document.getElementById('example');
+    const tbody = table1.querySelector('tbody');
+    const jsonData = data.page;
+    tbody.innerHTML = '';
+    // Loop through the data and create table rows
+    jsonData.forEach((page) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${page.filename}</td>
+        <td>${page.back_pass}</td>
+        <td>${page.back_Back_Result}</td>
+        <td>${page.back_Profit}</td>
+        <td>${page.back_Recovery_Factor}</td>
+        <td>${page.back_Equity_DD_d}</td>
+        <td>${page.back_Trades}</td>
+        <td>${page.forward_Result}</td>
+        <td>${page.forward_Profit}</td>
+        <td>${page.forward_Recovery_Factor}</td>
+        <td>${page.forward_Equity_DD_d}</td>
+        <td>${page.forward_Trades}</td>
+        <td>${page.profit_match}</td>
+        <td>${page.total_profit}</td>
+        <td>${page.max_original_dd}</td>
+        <td>${page.Lot_Multiple}</td>
+        <td>${page.Estimated_Total_DD}</td>
+        <td>${page.Estimated_Profit}</td>
+        <td>${page.Max_DD}</td>
+
+        <td><a href="" class="btn btn-primary">Download</a></td>
+      `;
+
+      tbody.appendChild(row);
+    });
+    $(document).ready(function() {
+  $("#example").DataTable();
+    });
+    $(document).ready(function() {
     var table = $('#example').DataTable();
 
 
@@ -519,37 +765,56 @@ $(document).ready(function () {
     
 
     $('#profit_match_min, #profit_match_max').on('input', function () {
-        var lowerLimit = parseFloat($('#profit_match_min').val().replace(',', '')) || null; // Remove commas if present
-        var upperLimit = parseFloat($('#profit_match_max').val().replace(',', '')) || null; // Remove commas if present
+    var lowerLimit = parseFloat($('#profit_match_min').val().replace(',', '')) || null;
+    var upperLimit = parseFloat($('#profit_match_max').val().replace(',', '')) || null;
+    console.log(lowerLimit)
+    console.log(upperLimit)
 
-        table.columns(12).search(function (value, index, row) {
-            var numericValue = parseFloat(value.replace(',', '')) || null; // Remove commas if present
-            
-            if (lowerLimit === null && upperLimit === null) {
-                return true; // Show all rows when limits are not specified
-            }
+    table.column(12).search(function (value, index, row) {
+        var numericValue = parseFloat(value.replace(',', '')) || null;
+        // console.log(lowerLimit)
+        // console.log(upperLimit)
 
-            if (lowerLimit !== null && upperLimit !== null) {
-                return numericValue >= lowerLimit && numericValue <= upperLimit;
-            }
 
-            if (lowerLimit !== null) {
-                return numericValue >= lowerLimit;
-            }
+        if (lowerLimit === null && upperLimit === null) {
+            console.log('1')
+            return true; // Show all rows when limits are not specified
+        }
 
-            if (upperLimit !== null) {
-                return numericValue <= upperLimit;
-            }
+        if (lowerLimit !== null && upperLimit !== null) {
+            console.log('2')
 
-            return true; // Show all rows if no condition matches
-        }).draw();
-    });
+            return numericValue >= lowerLimit && numericValue <= upperLimit;
+        }
+
+        if (lowerLimit !== null) {
+            console.log('3')
+
+            return numericValue >= lowerLimit;
+        }
+
+        if (upperLimit !== null) {
+            console.log('4')
+
+            return numericValue <= upperLimit;
+        }
+
+        return true; // Show all rows if no condition matches
+    }).draw();
+});
+
+
+
+
+
+
 
     // Handle clearing both input fields
     $('#clear_profit_match').on('click', function () {
         $('#profit_match_min').val('');
         $('#profit_match_max').val('');
         table.columns(12).search('').draw();
+    
     });
 
     // Add event listeners to input boxes for filtering
@@ -584,18 +849,80 @@ $(document).ready(function () {
     });
 
 });
-</script>
-<script>
+};
   
 
+  // Function to get the value of a cookie by name
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+});
+
+
 </script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
-
-
-
 
 
 </body>
 
 </html>
+
+
+<!-- 
+function sendJSONDataToDjango(jsonDataArray) {
+    // Use fetch or other methods to send JSON data to your Django backend
+    fetch('/upload_file/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'), // Include the CSRF token in the request headers
+      },
+      body: JSON.stringify(jsonDataArray),
+    })
+    .then((response) => response.json()) // Parse the JSON response from Django
+
+    .then((data) => {
+      if (data && data.length > 0) {
+        console.log('Hello');
+        // Initialize the DataTable with the received JSON data
+        $('#example').DataTable({
+          data: data, // Pass the JSON data to DataTable
+          columns: [
+      { data: 'filename', title: 'Optimisation Name' },
+      { data: 'back_pass', title: 'Back Pass' },
+      { data: 'back_Back_Result', title: 'Back Result' },
+      { data: 'back_Profit', title: 'Back Profit' },
+      { data: 'back_Recovery_Factor', title: 'Back Recovery Factor' },
+      { data: 'back_Equity_DD_d', title: 'Back Equity DD%' },
+      { data: 'back_Trades', title: 'Back Trades' },
+      { data: 'forward_Result', title: 'Forward Result' },
+      { data: 'forward_Profit', title: 'Forward Profit' },
+      { data: 'forward_Recovery_Factor', title: 'Forward Recovery Factor' },
+      { data: 'forward_Equity_DD_d', title: 'Forward Equity DD%' },
+      { data: 'forward_Trades', title: 'Forward Trades' },
+      { data: 'profit_match', title: 'Profit Match %' },
+      { data: 'total_profit', title: 'Total Original Profit' },
+      { data: 'max_original_dd', title: 'Max Original DD' },
+      { data: 'Lot_Multiple', title: 'Lot Multiple' },
+      { data: 'Estimated_Total_DD', title: 'Estimated Total DD' },
+      { data: 'Estimated_Profit', title: 'Estimated Profit' },
+      { data: 'Max_DD', title: 'Max DD' },
+      {
+        data: null,
+        title: 'Download',
+        render: function (data, type, row) {
+          return '<a href="" class="btn btn-primary">Download</a>';
+        },
+      },
+          ],
+        });
+      } else {
+        alert('No data received from Django.');
+      }
+    })
+    .catch((error) => {
+      alert('Error sending or receiving JSON data: ' + error.message);
+    });
+}
+   -->

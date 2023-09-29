@@ -20,7 +20,8 @@ from django.shortcuts import render
 # from accounts.serializers import *
 import time
 
-
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 import datetime
 from django.db.models import Q
 from datetime import datetime, timedelta
@@ -70,84 +71,107 @@ def get_date(forward, backward):
         return  dt
 def get_rows_back(soup):
     data={}
-    back_head=soup.find('Row').find_all("ss:Cell")
-    back_pass=back_head[0].text
-    back_result=back_head[1].text.replace(' ','_')
-    back_profit=back_head[2].text.replace(' ','_')
-    back_r_f=back_head[5].text.replace(' ','_')
-    back_e_dd_per=back_head[8].text.replace(' ','_').replace('%','')
-    back_trades=back_head[9].text.replace(' ','_')
-    for d in soup.find_all('Row')[1:]:
-        dt = d.find_all("Cell")
-        data[dt[0].text]={
-            f"back_pass":dt[0].text,
-            f"back_{back_result}":dt[1].text,
-            f"back_{back_profit}":dt[2].text,
-            f"back_{back_r_f}":dt[5].text,
-            f"back_{back_e_dd_per}d":dt[8].text,
-            f"back_{back_trades}":dt[9].text,
+    back_head=soup['heading'][0:32]
+    
+    back_pass=back_head[0]
+    back_result=back_head[2].replace(' ','_')
+    back_profit=back_head[3].replace(' ','_')
+    back_r_f=back_head[6].replace(' ','_')
+    back_e_dd_per=back_head[9].replace(' ','_').replace('%','')
+    back_trades=back_head[10].replace(' ','_')
+    for dt in soup['data']:
+        data[dt['Pass']]={
+            f"back_pass":dt['Pass'],
+            f"back_{back_result}":dt['Back Result'],
+            f"back_{back_profit}":dt['Profit'],
+            f"back_{back_r_f}":dt['Recovery Factor'],
+            f"back_{back_e_dd_per}d":dt['Equity DD %'],
+            f"back_{back_trades}":dt['Trades'],
         }
+    return data
+
+def get_rows_forwad(soup,res,diff,file_name,balance,drawdown):
+    deposit=balance
+    
+    # ok_dd=1000
+    # print(ok_dd)
+    data=[]
+    # print(soup['data'][0])
+    forward_head=soup['heading'][0:32]
+    forward_pass=forward_head[0]
+    forward_result=forward_head[1].replace(' ','_')
+    forward_profit=forward_head[2].replace(' ','_')
+    forward_r_f=forward_head[5].replace(' ','_')
+    forward_e_dd_per=forward_head[8].replace(' ','_').replace('%','')
+    forward_trades=forward_head[9].replace(' ','_')
+    for dt in soup['data']:
+        Mypass=dt['Pass'].strip()
+
+        
+        
+        if dt['Pass'].strip() in res :#and dt[0].text.strip() =='7703':
+            res[Mypass][f"filename"]=file_name
+            res[Mypass][f"forward_{forward_result}"]=dt['Result']
+            res[Mypass][f"forward_{forward_profit}"]=dt['Profit']
+            res[Mypass][f"forward_{forward_r_f}"]=dt['Recovery Factor']
+            res[Mypass][f"forward_{forward_e_dd_per}d"]=dt['Equity DD %']
+            res[Mypass][f"forward_{forward_trades}"]=dt['Trades']
+            try:
+                # print(float(dt[3].text),float(res[dt[0].text]['back_Profit']),diff)
+                res[Mypass][f"profit_match"]=round((float(dt['Profit'])/(float(res[Mypass]['back_Profit'])/diff))*100,2)
+            except:
+                res[Mypass][f"profit_match"]=0
+            try:
+                res[Mypass][f"total_profit"]=float(dt['Profit'])+float(res[Mypass]['back_Profit'])
+            except:
+                res[Mypass][f"total_profit"]=0
+            try:
+                
+                res[Mypass][f"max_original_dd"]=round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2)
+                
+            except:
+                res[Mypass][f"max_original_dd"]=0
+                
+                
+            try:
+                res[Mypass][f"Lot_Multiple"]=round(drawdown/round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2),2)
+                
+            except:
+                res[Mypass][f"Lot_Multiple"]=0
+            try:
+                res[Mypass][f"Estimated_Total_DD"]=round(drawdown/round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2),2)*round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2)
+                
+            except:
+                res[Mypass][f"Estimated_Total_DD"]=0
+                
+            try:
+                res[Mypass][f"Estimated_Profit"]=(float(dt['Profit'])+float(res[Mypass]['back_Profit']))*round(drawdown/round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2),2)
+                
+            except:
+                res[Mypass][f"Estimated_Profit"]=0
+            try:
+                res[Mypass][f"Max_DD"]=(max(float(res[Mypass]['back_Equity_DD_d']), float(dt['Equity DD %']))*balance)/(100*round(drawdown/round((float(res[Mypass]['back_Equity_DD_d']))*(deposit/100),2),2))
+                    
+            except:
+                res[Mypass][f"Max_DD"]=0
+
+            data.append(res[Mypass])   
         
     return data
 
-def get_rows_forwad(soup,res,diff,file_name,user_ip):
-    deposit=100000
-    ok_dd=1000
-    # print(ok_dd)
-    data=[]
-    forward_head=soup.find('Row').find_all("ss:Cell")
-    forward_pass=forward_head[0].text
-    forward_result=forward_head[1].text.replace(' ','_')
-    forward_profit=forward_head[3].text.replace(' ','_')
-    forward_r_f=forward_head[6].text.replace(' ','_')
-    forward_e_dd_per=forward_head[9].text.replace(' ','_').replace('%','')
-    forward_trades=forward_head[10].text.replace(' ','_')
-    for d in soup.find_all('Row')[1:]:
-        dt = d.find_all("Cell")
-        if dt[0].text.strip() in res :#and dt[0].text.strip() =='7703':
-            res[dt[0].text][f"ips"]=user_ip
-            
-            res[dt[0].text][f"filename"]=file_name
-            res[dt[0].text][f"forward_{forward_result}"]=dt[1].text
-            res[dt[0].text][f"forward_{forward_profit}"]=dt[3].text
-            res[dt[0].text][f"forward_{forward_r_f}"]=dt[6].text
-            res[dt[0].text][f"forward_{forward_e_dd_per}d"]=dt[9].text
-            res[dt[0].text][f"forward_{forward_trades}"]=dt[10].text
-            try:
-                # print(float(dt[3].text),float(res[dt[0].text]['back_Profit']),diff)
-                res[dt[0].text][f"profit_match"]=round((float(dt[3].text)/(float(res[dt[0].text]['back_Profit'])/diff))*100,2)
-            except:
-                res[dt[0].text][f"profit_match"]=0
-            try:
-                res[dt[0].text][f"total_profit"]=float(dt[3].text)+float(res[dt[0].text]['back_Profit'])
-            except:
-                res[dt[0].text][f"total_profit"]=0
-            try:
-                res[dt[0].text][f"max_original_dd"]=round((float(res[dt[0].text]['back_Equity_DD_']))*(deposit/100),2)
-                
-            except:
-                res[dt[0].text][f"max_original_dd"]=0
-
-            data.append(res[dt[0].text])   
-             
-            
-    return data
-
-def merge_xml(file1, file2,diff,file_name,user_ip):
+def merge_xml(file1, file2,diff,file_name,balance,drawdown):
             # Implement your CSV merging logic here
         # You can use the csv module to read and merge the data from the two files
-        soup1 = BeautifulSoup(file1, 'xml')
-        soup2 = BeautifulSoup(file2, 'xml')
+        # soup1 = BeautifulSoup(file1, 'xml')
+        # soup2 = BeautifulSoup(file2, 'xml')
 
         # Implement your merging logic here
         
         
         # For demonstration purposes, we'll just concatenate the XML strings
-        merged_xml_data = get_rows_back(soup2)
-        time.sleep(10)
-        
-        merged_xml_data = get_rows_forwad(soup1,merged_xml_data,diff,file_name,user_ip)
-        time.sleep(10)
+        merged_xml_data = get_rows_back(file1)
+        merged_xml_data = get_rows_forwad(file2,merged_xml_data,diff,file_name,balance,drawdown)
+        # time.sleep(10)
         
         # Example:
         # Read file1 and file2 and merge the data into merged_data
@@ -167,63 +191,32 @@ def calculation(date2_str,date1_str):
     weeks = date_difference / 7
     return weeks
 def test(request):
-    global q_objects
-    merged_data = [] 
-    file_name=''
-    user_ip = request.META.get('REMOTE_ADDR', None)
-    print(user_ip)
-    if request.method == 'POST' and 'clear1' in request.POST:
-        
-        Data.objects.filter(ips=user_ip).delete()
-        forward_uploaded_file = request.FILES.get('fileforward')
-        backward_uploaded_file = request.FILES.get('filebackward')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        forward_date = request.POST.get('forward')
-        
-        # Check if both files were uploaded
-        if not forward_uploaded_file or not backward_uploaded_file:
-            messages.success(request,"Both forward and backward files are required.")
-            return redirect('sitefinder')
-        # Check if the uploaded files are XML files
-        if not forward_uploaded_file.name.endswith('.xml') or not backward_uploaded_file.name.endswith('.xml'):
-            messages.success(request,"Both files must be XML files.")
-            return redirect('sitefinder')
-        g15 = calculation(forward_date, start_date)
-        g16 = calculation(end_date, forward_date)
-        g17 = g15 / g16
-        file_name = forward_uploaded_file.name.split('.')[0]
 
-        merged_data = merge_xml(forward_uploaded_file, backward_uploaded_file, g17,file_name,user_ip)
-        instances_to_save = [Data(**entry) for entry in merged_data]
-
-        # Use bulk_create to save all instances in one go
-        Data.objects.bulk_create(instances_to_save)
-        messages.success(request,"Data is Saved SuccessFully")
-    
-    merged = Data.objects.all()
-
-    return render(request, 'test.html', {'pages': merged,'filename':file_name,})
+    return render(request, 'test.html')
 
 
 import json
 def upload_file(request):
+    merged_data = [] 
+    file_name=''
     global extracted_date
     if request.method == 'POST':
+
         json_data = json.loads(request.body)
-
-        # Now you can access and manipulate the JSON data as needed
-        # For example, print it to the console
-
-        # forward_uploaded_file = request.FILES['fileforward']
-        # backward_uploaded_file = request.FILES['filebackward']
+        forward_date=json_data[2]['forward']
+        start_date=json_data[2]['start_date']
+        end_date=json_data[2]['end_date']
+        balance=float(json_data[2]['balance'])
         
-        # Extract the date from the uploaded file
-        # extracted_date = get_date(forward_uploaded_file,backward_uploaded_file)
-        # You can now use the extracted_date as needed, e.g., save it to a model or perform other actions.
+        drawdown=float(json_data[2]['drawdown'])
         
+        g15 = calculation(forward_date, start_date)
+        g16 = calculation(end_date, forward_date)
+        g17 = g15 / g16
+        file_name = json_data[2]['filename'].split('.')[0]
+        merged_data = merge_xml(json_data[1], json_data[0], g17,file_name,balance,drawdown)
         # For demonstration purposes, we'll return the extracted date as an HTTP response.
-        return JsonResponse({"start_date":"false"})
+        return JsonResponse({"page":merged_data})
 
     
 
